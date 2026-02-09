@@ -1,0 +1,20 @@
+- path: /
+  method: GET
+  filters:
+    - name: constant
+      params:
+        contenttype: application/yaml
+        data:
+          hello: world
+          ar: [a, b, c]
+    - name: template
+      params:
+        type: text
+        content: |
+          Hello, {{.hello}}
+          {{ now | strftime "%Y-%m-%d %H:%M:%S %z" }}
+          {{ now | rfc3339 }}
+          {{ if in "ab" .ar }}exists{{else}}not exists{{end}}
+    # - name: encode
+    #   params:
+    #     contenttype: application/json
