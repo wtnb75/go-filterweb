@@ -1,6 +1,6 @@
 version: 2
 
-project_name: filterweb
+project_name: go-filterweb
 
 before:
   hooks:
@@ -15,20 +15,6 @@ builds:
       - linux
       - windows
       - darwin
-      - wasip1
-    goarch:
-      - amd64
-      - arm64
-      - wasm
-  - id: filterweb-otel
-    dir: .
-    main: ./cmd/filterweb
-    env:
-      - CGO_ENABLED=0
-    tags:
-      - otel
-    goos:
-      - linux
       - wasip1
     goarch:
       - amd64
