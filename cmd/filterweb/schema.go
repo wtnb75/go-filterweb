@@ -14,8 +14,8 @@ type Schema struct{}
 func (s *Schema) Execute(args []string) error {
 	init_log()
 	for _, name := range filterweb.ListFilters() {
-		slog.Info("filter", "name", name)
 		f, err := filterweb.GetFilter(name)
+		slog.Info("filter", "name", name)
 		if err != nil {
 			slog.Error("failed to get filter", "name", name, "error", err)
 			return err

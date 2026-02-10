@@ -1,2 +1,4 @@
 dist/
 cmd/filterweb/filterweb
+cover.out
+cover.html
