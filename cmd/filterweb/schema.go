@@ -15,7 +15,7 @@ func (s *Schema) Execute(args []string) error {
 	init_log()
 	for _, name := range filterweb.ListFilters() {
 		f, err := filterweb.GetFilter(name)
-		slog.Info("filter", "name", name)
+		slog.Info("filter", "name", name, "accept", f.Accepts())
 		if err != nil {
 			slog.Error("failed to get filter", "name", name, "error", err)
 			return err
