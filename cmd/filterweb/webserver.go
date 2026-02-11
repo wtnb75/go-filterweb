@@ -74,36 +74,19 @@ func (s *WebServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Internal Server Error", statuscode)
 				return
 			}
-			if data, ok := fdata.Data.([]byte); ok {
-				w.Header().Set("Content-Type", fdata.ContentType)
-				w.WriteHeader(statuscode)
-				_, err = w.Write(data)
-				if err != nil {
-					slog.Error("failed to write response data([]byte)", "error", err)
-				}
+			strbuf := fdata.String()
+			if strbuf == "" {
+				// error case
+				statuscode = http.StatusInternalServerError
+				slog.Error("failed to encode response data", "error", err)
+				http.Error(w, "Internal Server Error", statuscode)
 				return
-			} else if strdata, ok := fdata.Data.(string); ok {
-				w.Header().Set("Content-Type", fdata.ContentType)
-				w.WriteHeader(statuscode)
-				_, err = w.Write([]byte(strdata))
-				if err != nil {
-					slog.Error("failed to write response data(string)", "error", err)
-				}
-				return
-			} else {
-				buf, err := filterweb.EncodeContentType(fdata.ContentType, fdata.Data)
-				if err != nil {
-					statuscode = http.StatusInternalServerError
-					slog.Error("failed to encode response data", "error", err)
-					http.Error(w, "Internal Server Error", statuscode)
-					return
-				}
-				w.Header().Set("Content-Type", fdata.ContentType)
-				w.WriteHeader(statuscode)
-				_, err = w.Write(buf)
-				if err != nil {
-					slog.Error("failed to write response data", "error", err)
-				}
+			}
+			w.Header().Set("Content-Type", fdata.ContentType)
+			w.WriteHeader(statuscode)
+			_, err = w.Write([]byte(strbuf))
+			if err != nil {
+				slog.Error("failed to write response data", "error", err)
 			}
 			return
 		}

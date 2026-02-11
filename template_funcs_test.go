@@ -47,7 +47,7 @@ func TestStrptimeAndDoStrftime(t *testing.T) {
 	}
 }
 
-func TestInAndToJSONAlias(t *testing.T) {
+func TestIn(t *testing.T) {
 	arr := []any{"a", 1, "b"}
 	if !in("a", arr) {
 		t.Fatalf("in should find 'a'")
@@ -55,9 +55,21 @@ func TestInAndToJSONAlias(t *testing.T) {
 	if in("z", arr) {
 		t.Fatalf("in should not find 'z'")
 	}
-	// tojson is implemented same as in; verify behavior
-	if !tojson(1, arr) {
-		t.Fatalf("tojson should find 1")
+}
+
+func TestToJSON(t *testing.T) {
+	m := map[string]any{"name": "Alice", "age": 30}
+	y := tojson(m)
+	if !strings.Contains(y, "\"name\"") || !strings.Contains(y, "Alice") {
+		t.Fatalf("tojson output unexpected: %q", y)
+	}
+}
+
+func TestToJSONError(t *testing.T) {
+	m := map[string]any{"name": "Alice", "now": time.Now}
+	y := tojson(m)
+	if y != "" {
+		t.Fatalf("tojson error case: %q", y)
 	}
 }
 
