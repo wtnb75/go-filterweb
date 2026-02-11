@@ -1,4 +1,4 @@
 FROM scratch
 ARG EXT=
-COPY filterweb${EXT} /
-ENTRYPOINT ["/filterweb${EXT}"]
+COPY go-filterweb${EXT} /
+ENTRYPOINT ["/go-filterweb${EXT}"]
