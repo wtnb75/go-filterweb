@@ -105,7 +105,7 @@ func DecodeContentType(contentType string, data []byte) (any, error) {
 	var res any
 	switch contentType {
 	case "application/json":
-		err := json.Unmarshal(data, res)
+		err := json.Unmarshal(data, &res)
 		if err != nil {
 			return res, err
 		}

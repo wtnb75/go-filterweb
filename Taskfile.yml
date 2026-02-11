@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+vars:
+  GREETING: Hello, world!
+
+tasks:
+  default:
+    desc: Print a greeting message
+    cmds:
+      - task -l
+    silent: true
+
+  test:
+    desc: run unittest
+    cmds:
+      - go test -v -cover -coverprofile=cover.out ./... {{.CLI_ARGS}}
+      - go tool cover -func cover.out
+      - go tool cover -html cover.out -o cover.html
+      - echo open cover.html

@@ -2,8 +2,6 @@ package filterweb
 
 import (
 	"context"
-	"encoding/json"
-	"encoding/xml"
 	"io"
 	"log/slog"
 	"mime"
@@ -11,7 +9,6 @@ import (
 	"net/http"
 
 	"github.com/go-viper/mapstructure/v2"
-	"github.com/goccy/go-yaml"
 )
 
 type HTTPConfig struct {
@@ -109,29 +106,11 @@ func (hc *HTTPConfig) Process(data Data) (Data, error) {
 		slog.Error("read body", "method", hc.Method, "url", hc.Url, "err", err)
 		return res, ErrHTTPRequestFailed
 	}
-	switch res.ContentType {
-	case "application/json":
-		err := json.Unmarshal(buf, &res.Data)
-		if err != nil {
-			res.Data = buf
-			return res, err
-		}
-	case "application/yaml", "text/yaml":
-		err := yaml.Unmarshal(buf, &res.Data)
-		if err != nil {
-			res.Data = buf
-			return res, err
-		}
-	case "text/xml", "application/xml":
-		err := xml.Unmarshal(buf, &res.Data)
-		if err != nil {
-			res.Data = buf
-			return res, err
-		}
-	default:
-		res.Data = buf
+	res.Data, err = DecodeContentType(res.ContentType, buf)
+	if err != nil {
+		slog.Error("decode", "method", hc.Method, "url", hc.Url, "contenttype", res.ContentType, "err", err, "data", res.Data)
 	}
-	return res, nil
+	return res, err
 }
 
 func (hc *HTTPConfig) Post(config Config, data Data) error {
