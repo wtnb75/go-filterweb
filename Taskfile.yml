@@ -19,3 +19,16 @@ tasks:
       - go tool cover -func cover.out
       - go tool cover -html cover.out -o cover.html
       - echo open cover.html
+
+  check:
+    desc: run filter
+    dir: ./cmd/filterweb
+    cmds:
+      - go run . checkfilter --config {{.CLI_ARGS}}
+
+  lint:
+    desc: lint
+    cmds:
+      - go fix ./...
+      - go fmt ./...
+      - golangci-lint run
