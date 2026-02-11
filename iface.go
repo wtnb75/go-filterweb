@@ -9,6 +9,7 @@ import (
 	"log/slog"
 
 	"github.com/goccy/go-yaml"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -34,6 +35,20 @@ type Filter interface {
 	Prep(config Config, data Data) error
 	Process(data Data) (Data, error)
 	Post(config Config, data Data) error
+}
+
+func (d Data) String() string {
+	if data, ok := d.Data.([]byte); ok {
+		return string(data)
+	} else if strdata, ok := d.Data.(string); ok {
+		return strdata
+	}
+	buf, err := EncodeContentType(d.ContentType, d.Data)
+	if err != nil {
+		slog.Error("cannot convert to string", "contenttype", d.ContentType, "data", d.Data)
+		return ""
+	}
+	return string(buf)
 }
 
 var filters map[string]Filter = make(map[string]Filter)
@@ -78,7 +93,7 @@ func ProcessFilters(configs []Config) (Data, error) {
 			}
 		}
 		if !accepted {
-			slog.Error("filter does not accept content type", "filter", filter, "data", data)
+			slog.Error("filter does not accept content type", "filter", filter.Name(), "data", data)
 			return data, ErrContentTypeMismatch
 		}
 		slog.Debug("Prep", "name", filter.Name(), "filter", filter, "data", data)
@@ -140,6 +155,14 @@ func DecodeContentType(contentType string, data []byte) (any, error) {
 			resultdata = append(resultdata, m)
 		}
 		res = resultdata
+	case "text/dotenv": // custom
+		buf := bytes.NewReader(data)
+		smap, err := godotenv.Parse(buf)
+		if err != nil {
+			slog.Error("dotenv parse error", "error", err)
+			return res, err
+		}
+		res = smap
 	default:
 		res = data
 	}
@@ -202,6 +225,18 @@ func EncodeContentType(contentType string, data any) ([]byte, error) {
 		}
 		writer.Flush()
 		res = buf.Bytes()
+	case "text/dotenv": // custom
+		if smap, ok := data.(map[string]string); ok {
+			buf, err := godotenv.Marshal(smap)
+			if err != nil {
+				slog.Error("dotenv encode error", "error", err, "data", smap)
+				return nil, err
+			}
+			res = []byte(buf)
+		} else {
+			slog.Error("cannot encode to dotenv", "data", data)
+			return nil, ErrEncode
+		}
 	default:
 		res = fmt.Appendf(nil, "%v", data)
 	}

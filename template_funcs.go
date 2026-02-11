@@ -1,6 +1,9 @@
 package filterweb
 
 import (
+	"encoding/base64"
+	"encoding/hex"
+	"encoding/json"
 	"encoding/xml"
 	"log/slog"
 	"regexp"
@@ -54,13 +57,13 @@ func in(key any, target []any) bool {
 	}
 	return false
 }
-func tojson(key any, target []any) bool {
-	for _, v := range target {
-		if v == key {
-			return true
-		}
+func tojson(v any) string {
+	b, err := json.Marshal(v)
+	if err != nil {
+		slog.Error("toJSON function error", "value", v, "error", err)
+		return ""
 	}
-	return false
+	return string(b)
 }
 
 func toyaml(v any) string {
@@ -89,6 +92,32 @@ func do_strftime(format string, t time.Time) string {
 	return strftime.Format(format, t)
 }
 
+func do_hex(data []byte) string {
+	return hex.EncodeToString(data)
+}
+
+func do_unhex(data string) []byte {
+	if bout, err := hex.DecodeString(data); err != nil {
+		return bout
+	} else {
+		slog.Error("unhex", "error", err, "input", data)
+		return nil
+	}
+}
+
+func do_base64(data []byte) string {
+	return base64.StdEncoding.EncodeToString(data)
+}
+
+func do_unbase64(data string) []byte {
+	if bout, err := base64.StdEncoding.DecodeString(data); err != nil {
+		return bout
+	} else {
+		slog.Error("unbase64", "error", err, "input", data)
+		return nil
+	}
+}
+
 func makefuncs() template.FuncMap {
 	return template.FuncMap{
 		"match":    match,
@@ -101,5 +130,9 @@ func makefuncs() template.FuncMap {
 		"toJSON":   tojson,
 		"toYAML":   toyaml,
 		"toXML":    toxml,
+		"hex":      do_hex,
+		"unhex":    do_unhex,
+		"base64":   do_base64,
+		"unbase64": do_unbase64,
 	}
 }

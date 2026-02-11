@@ -31,7 +31,7 @@ func (cf *CheckFilter) Execute(args []string) error {
 		if !cf.HideCt {
 			fmt.Printf("Content-Type: %s\n\n", fdata.ContentType)
 		}
-		fmt.Print(fdata.Data)
+		fmt.Print(fdata)
 	}
 	return nil
 }

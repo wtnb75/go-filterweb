@@ -33,7 +33,7 @@ func (tc *TemplateConfig) Name() string {
 }
 
 func (tc *TemplateConfig) Accepts() []string {
-	return []string{"application/json", "application/yaml", "text/yaml", "text/xml", "application/xml"}
+	return []string{"application/json", "application/yaml", "text/yaml", "text/xml", "application/xml", "text/dotenv"}
 }
 
 func (tc *TemplateConfig) load(tmpl string) (err error) {

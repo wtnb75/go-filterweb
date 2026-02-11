@@ -9,4 +9,6 @@ var (
 	ErrHTTPStatusNotOK     = errors.New("http status not ok")
 	ErrMissingParams       = errors.New("missing parameters")
 	ErrReadTemplate        = errors.New("failed to read template")
+	ErrEncode              = errors.New("encode error")
+	ErrDecode              = errors.New("decode error")
 )
