@@ -7,7 +7,9 @@ import (
 	"github.com/wtnb75/go-filterweb"
 )
 
-type CheckFilter struct{}
+type CheckFilter struct {
+	HideCt bool `long:"hide-content-type"`
+}
 
 func (cf *CheckFilter) Execute(args []string) error {
 	init_log()
@@ -19,11 +21,17 @@ func (cf *CheckFilter) Execute(args []string) error {
 	}
 	for _, config := range configData {
 		fdata, err := filterweb.ProcessFilters(config.Filters)
+		if !cf.HideCt {
+			fmt.Printf("%s %s\n", config.Method, config.Path)
+		}
 		if err != nil {
 			slog.Error("failed to process filters", "error", err)
 			return err
 		}
-		fmt.Printf("Content-Type: %s\n\n%s", fdata.ContentType, fdata.Data)
+		if !cf.HideCt {
+			fmt.Printf("Content-Type: %s\n\n", fdata.ContentType)
+		}
+		fmt.Print(fdata.Data)
 	}
 	return nil
 }

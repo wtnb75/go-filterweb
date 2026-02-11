@@ -13,7 +13,7 @@ import (
 var globalOption struct {
 	Verbose bool           `short:"v" long:"verbose" description:"show verbose logs"`
 	Quiet   bool           `short:"q" long:"quiet" description:"suppress logs"`
-	JsonLog bool           `long:"json-log" description:"use json format for logging"`
+	TextLog bool           `long:"text-log" description:"use text format for logging"`
 	Config  flags.Filename `short:"c" long:"config" description:"config file" env:"FILTERWEB_CONFIG"`
 }
 
@@ -25,7 +25,7 @@ func init_log() {
 		level = slog.LevelWarn
 	}
 	slog.SetLogLoggerLevel(level)
-	if globalOption.JsonLog {
+	if !globalOption.TextLog {
 		slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: level})))
 	}
 }
