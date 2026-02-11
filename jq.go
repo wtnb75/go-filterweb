@@ -25,16 +25,19 @@ func (jc *JqConfig) Accepts() []string {
 	return []string{}
 }
 
-func (jc *JqConfig) Prep(config Config, data Data) error {
-	err := mapstructure.Decode(config.Params, jc)
-	if err != nil {
+func (jc *JqConfig) Prep(config Config, data Data) (err error) {
+	if err = mapstructure.Decode(config.Params, jc); err != nil {
+		slog.Error("mapstructure decode", "type", jc.Name(), "params", config.Params)
 		return err
 	}
 	if jc.Expression == "" {
 		slog.Error("jq filter requires 'expression' parameter")
 		return ErrMissingParams
 	}
-	jc.query, err = gojq.Parse(jc.Expression)
+	if jc.query, err = gojq.Parse(jc.Expression); err != nil {
+		slog.Error("jq filter parse error", "expr", jc.Expression)
+		return err
+	}
 	return nil
 }
 
